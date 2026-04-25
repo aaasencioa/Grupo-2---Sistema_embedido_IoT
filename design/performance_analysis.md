@@ -43,7 +43,6 @@ Interpretación:
 
 Este resultado representa el tiempo ideal requerido para completar una carga típica del sistema IoT, como lectura de sensores, procesamiento básico y transmisión de datos. Según Hennessy y Patterson, el rendimiento depende de tres variables fundamentales: número de instrucciones, CPI y velocidad de reloj, por lo que cualquier optimización debe enfocarse en reducir una o más de estas.
 
----
 
 ## 2. CPI real considerando stalls
 
@@ -79,7 +78,6 @@ Aunque idealmente el procesador ejecutaría una instrucción por ciclo, en la pr
 
 Estas penalizaciones elevan el CPI real y reducen el rendimiento. Hennessy y Patterson destacan que este análisis es clave para evaluar Instruction-Level Parallelism (ILP) y comprender cuellos de botella en arquitecturas modernas.
 
----
 
 ## 3. Impacto de memoria (AMAT)
 
