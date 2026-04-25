@@ -1,66 +1,116 @@
-# Análisis de Rendimiento en Sistemas Embebidos IoT
+# Performance Analysis
+Siguiendo el enfoque cuantitativo de Hennessy y Patterson, el rendimiento del sistema embebido IoT se evalúa considerando tres factores fundamentales:
 
-Un sistema embebido IoT no solo debe ser funcional, sino también eficiente. El análisis de rendimiento es el proceso sistemático para medir, evaluar y optimizar cómo un sistema utiliza sus recursos para cumplir con sus tareas.
+- Tiempo de ejecución del CPU
+- Impacto de la jerarquía de memoria
+- Efecto de mejoras parciales mediante Ley de Amdahl
 
-Para evaluar el desempeño del sistema embebido IoT, se utilizan tres métricas clásicas de arquitectura de computadores:
+El objetivo es medir si la arquitectura propuesta satisface requerimientos de desempeño y eficiencia.
 
-1. **CPI (Cycles Per Instruction):** Mide cuántos ciclos de reloj necesita una instrucción, en promedio. Un CPI bajo es vital para reducir el consumo de energía.
-2. **MIPS (Million Instructions Per Second):** Mide cuántos millones de instrucciones puede ejecutar el procesador por segundo.
-3. **Ley de Amdahl:** Estima el impacto real de optimizar solo una parte del sistema.
+## 1. Ecuación de desempeño del CPU
 
----
+Siguiendo el enfoque cuantitativo de Hennessy y Patterson, el desempeño del procesador puede evaluarse mediante la ecuación clásica de tiempo de CPU:
 
-## 1. Cálculo de CPI (Cycles Per Instruction)
+CPU Time = Instruction Count × CPI × Clock Cycle Time
 
-El CPI promedio depende del tipo de instrucciones ejecutadas y de cuántos ciclos requiere cada una.
+Donde:
 
-### Supuestos para la carga de trabajo del sistema IoT:
+- Instruction Count (IC): número total de instrucciones ejecutadas.
+- CPI: ciclos promedio por instrucción.
+- Clock Cycle Time: duración de cada ciclo de reloj.
 
-| Tipo de instrucción | Frecuencia | Ciclos |
-| :--- | :--- | :--- |
-| Operaciones aritméticas | 50% | 1 |
-| Acceso a memoria | 30% | 2 |
-| Saltos/Control | 20% | 3 |
+Para el sistema embebido IoT propuesto se asumen los siguientes parámetros:
 
-### Cálculo:
-**CPI = (0.5)(1) + (0.3)(2) + (0.2)(3) = 1.7**
+- 500,000 instrucciones
+- CPI base = 1.0
+- Frecuencia del procesador = 100 MHz
 
-**CPI promedio = 1.7**
+El tiempo de ciclo se calcula como:
 
-### Interpretación
-Esto significa que, en promedio, cada instrucción requiere 1.7 ciclos de reloj para completarse. Aunque algunos núcleos como ARM Cortex-M0 pueden acercarse a CPI=1 en condiciones ideales, en cargas reales los accesos a memoria y saltos elevan el valor efectivo.
+Clock Cycle Time = 1 / (100 × 10^6) = 10 ns
 
-**Un CPI bajo es deseable porque:**
-* Reduce el tiempo de ejecución.
-* Disminuye el consumo energético.
-* Mejora la capacidad de respuesta en tiempo real.
+Sustituyendo en la ecuación:
 
----
+CPU Time = 500000 × 1.0 × 10 ns
 
-## 2. Cálculo de MIPS (Million Instructions Per Second)
+CPU Time = 5 ms
 
-La fórmula utilizada es:
-$$MIPS = \frac{Frecuencia (MHz)}{CPI}$$
+Resultado:
 
-**Con una frecuencia de 100 MHz:**
-$$MIPS = \frac{100}{1.7} \approx 58.8$$
+El tiempo estimado de ejecución es 5 milisegundos.
 
-**Resultado: 58.8 MIPS**
+Interpretación:
 
-### Interpretación
-El procesador puede ejecutar aproximadamente 58.8 millones de instrucciones por segundo. Esto es suficiente para tareas típicas de un nodo IoT como:
-* Lectura de sensores.
-* Filtrado básico de datos.
-* Comunicación inalámbrica.
-* Respuesta a eventos.
+Este resultado representa el tiempo ideal requerido para completar una carga típica del sistema IoT, como lectura de sensores, procesamiento básico y transmisión de datos. Según Hennessy y Patterson, el rendimiento depende de tres variables fundamentales: número de instrucciones, CPI y velocidad de reloj, por lo que cualquier optimización debe enfocarse en reducir una o más de estas.
 
 ---
 
-## Observaciones Técnicas
+## 2. CPI real considerando stalls
 
-* **Limitaciones de MIPS:** MIPS es útil como métrica inicial, pero no debe usarse sola para comparar arquitecturas, ya que distintas arquitecturas (ISA) pueden tener instrucciones de complejidad diferente.
-* **Proceso Iterativo:** El análisis de rendimiento en sistemas embebidos IoT es un proceso iterativo. La optimización del firmware y la elección correcta de la arquitectura de hardware son determinantes para la viabilidad comercial, garantizando la longevidad de la batería y la confiabilidad del sistema.
-* **Benchmarks adicionales:** Para un análisis más profundo, se recomienda emplear:
-    * **Dhrystone (DMIPS)**
-    * **CoreMark**
+El libro distingue entre un CPI ideal y un CPI real afectado por interrupciones del pipeline (stalls). Para modelarlo se utiliza:
 
+Pipeline CPI = Ideal CPI + Structural Stalls + Data Stalls + Control Stalls
+
+Supuestos:
+
+- Ideal CPI = 1.0
+- Structural stalls = 0.1
+- Data stalls = 0.4
+- Control stalls = 0.2
+
+Entonces:
+
+CPI = 1.0 + 0.1 + 0.4 + 0.2
+
+CPI = 1.7
+
+Resultado:
+
+CPI efectivo = 1.7
+
+Interpretación:
+
+Aunque idealmente el procesador ejecutaría una instrucción por ciclo, en la práctica existen penalizaciones causadas por:
+
+- Dependencias entre instrucciones.
+- Accesos a memoria.
+- Saltos condicionales.
+- Riesgos estructurales del pipeline.
+
+Estas penalizaciones elevan el CPI real y reducen el rendimiento. Hennessy y Patterson destacan que este análisis es clave para evaluar Instruction-Level Parallelism (ILP) y comprender cuellos de botella en arquitecturas modernas.
+
+---
+
+## 3. Impacto de memoria (AMAT)
+
+La jerarquía de memoria también afecta el rendimiento. Para medirlo se utiliza Average Memory Access Time (AMAT):
+
+AMAT = Hit Time + (Miss Rate × Miss Penalty)
+
+Supuestos:
+
+- Hit Time = 1 ciclo
+- Miss Rate = 5%
+- Miss Penalty = 20 ciclos
+
+Sustituyendo:
+
+AMAT = 1 + (0.05 × 20)
+
+AMAT = 2 ciclos
+
+Resultado:
+
+Tiempo promedio de acceso a memoria = 2 ciclos
+
+Interpretación:
+
+Aunque la caché permite accesos rápidos, los fallos de caché incrementan el tiempo efectivo de acceso. Esto impacta directamente el CPI, ya que cada fallo introduce ciclos adicionales de espera.
+
+En sistemas embebidos IoT esto es particularmente importante porque:
+
+- La memoria suele ser limitada.
+- La latencia puede afectar respuesta en tiempo real.
+- Fallos frecuentes incrementan consumo energético.
+
+De acuerdo con Hennessy y Patterson, reducir el Miss Rate o Miss Penalty puede producir mejoras significativas en desempeño global.
