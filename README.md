@@ -12,8 +12,6 @@ Sistema Embebido IoT
 - Juan
 - Lourdes
 
-# Proyecto Final - Arquitectura de Computadoras
-
 ## Descripción del problema
 
 El desarrollo de sistemas embebidos orientados al Internet de las Cosas (IoT) requiere tomar decisiones de diseño que permitan optimizar recursos como energía, memoria, rendimiento y costos de fabricación.
