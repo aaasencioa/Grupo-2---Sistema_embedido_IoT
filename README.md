@@ -3,16 +3,18 @@ Sistema Embebido IoT
 
 ## Integrantes
 
-- Javi
+- Javier Augusto
+- Javier Soberanis
 - Marlon
-- Ceci
+- Cecilia
 - Araceli
-- Luisfer
+- Luis Fernando
 - Juan
+- Lourdes
 
-## Ramas de trabajo
+## Contenido
 
-- isa-choice
-- memory-hierarchy
-- performance-analysis
-- readme
+- Selección de ISA
+- Jerarquía de memoria
+- Análisis de rendimiento
+- Bibliografía en formato APA
