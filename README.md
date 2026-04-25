@@ -12,70 +12,49 @@ Sistema Embebido IoT
 - Juan
 - Lourdes
 
-## Contenido
-
-- Selección de ISA
-- Jerarquía de memoria
-- Análisis de rendimiento
-- Bibliografía en formato APA
+# Proyecto Final - Arquitectura de Computadoras
 
 ## Descripción del problema
 
-En el desarrollo de sistemas embebidos orientados al Internet de las Cosas (IoT), una de las principales dificultades no es únicamente construir el dispositivo, sino tomar las decisiones correctas de arquitectura que permitan obtener un sistema eficiente, funcional y sostenible.
+El desarrollo de sistemas embebidos orientados al Internet de las Cosas (IoT) requiere tomar decisiones de diseño que permitan optimizar recursos como energía, memoria, rendimiento y costos de fabricación.
 
-Los dispositivos IoT, como sensores inteligentes, relojes digitales, sistemas de monitoreo, dispositivos médicos y automatización industrial, trabajan bajo condiciones muy diferentes a las de una computadora tradicional. Estos sistemas deben operar con bajo consumo de energía, espacio físico reducido, costos de fabricación accesibles y alta confiabilidad, ya que muchos funcionan de manera continua y en entornos críticos.
+A diferencia de una computadora tradicional, los dispositivos IoT operan bajo restricciones más estrictas: deben consumir poca energía, ocupar poco espacio físico, mantener costos accesibles y ofrecer un funcionamiento confiable durante largos periodos de tiempo.
 
-El verdadero desafío consiste en determinar qué decisiones de diseño son las más adecuadas para cumplir con estas restricciones. Elegir una arquitectura incorrecta puede provocar mayor consumo de batería, menor velocidad de respuesta, aumento de costos o fallos en el funcionamiento del sistema.
+El principal desafío no consiste en resolver una falla específica, sino en determinar qué arquitectura computacional resulta más adecuada para cumplir con estas condiciones. Una mala elección puede generar mayor consumo de batería, menor velocidad de respuesta, mayor costo de producción o menor vida útil del dispositivo.
 
-Por ello, este proyecto no parte de un problema específico de falla, sino de la necesidad de analizar y justificar cuál es la mejor arquitectura para un sistema embebido IoT, evaluando diferentes alternativas y seleccionando la más eficiente desde el punto de vista técnico y económico.
+Por ello, este proyecto se enfoca en analizar y justificar las mejores decisiones de arquitectura para un sistema embebido IoT, evaluando el conjunto de instrucciones (ISA), el diseño de la jerarquía de memoria caché y el análisis de rendimiento del sistema.
 
 
 ## Decisiones principales
 
 ### 1. Selección de ISA (Instruction Set Architecture)
 
-La primera decisión importante fue seleccionar el tipo de arquitectura de conjunto de instrucciones más adecuada para un sistema embebido IoT.
+Se realizó una comparación entre arquitecturas RISC y CISC para determinar cuál se adapta mejor a sistemas embebidos IoT.
 
-Se realizó una comparación entre arquitecturas RISC y CISC, analizando aspectos como:
+Después del análisis, se concluyó que la arquitectura RISC es la mejor opción debido a su simplicidad, menor consumo energético, rapidez de ejecución y menor complejidad de hardware.
 
-- tipo de instrucciones
-- tamaño de instrucciones
-- tiempo de ejecución
-- acceso a memoria
-- consumo energético
-- costos de implementación
-
-Después del análisis, se concluyó que la arquitectura RISC es la mejor opción, ya que ofrece instrucciones simples, ejecución rápida y constante, menor complejidad de hardware y mejor eficiencia energética.
-
-Se eligió específicamente la variante RV32EC de RISC-V, porque su extensión “E” reduce la cantidad de registros generales, disminuyendo el tamaño del chip, el consumo de energía y los costos de fabricación. Además, al ser una arquitectura de estándar abierto, elimina costos de licencias.
+Se seleccionó específicamente la variante RV32EC de RISC-V, ya que su extensión “E” reduce la cantidad de registros generales, disminuyendo el tamaño del chip, el consumo de energía y los costos de fabricación. Además, al ser una arquitectura de estándar abierto, elimina costos de licencias.
 
 
-### 2. Diseño de jerarquía de memoria
+### 2. Diseño de la jerarquía de memoria caché
 
-La segunda decisión corresponde a la organización de la memoria dentro del sistema.
+La segunda decisión principal corresponde al diseño de la memoria caché y su jerarquía.
 
-En dispositivos IoT, el acceso eficiente a la memoria es fundamental para reducir tiempos de respuesta y consumo de energía. Una jerarquía de memoria bien diseñada permite optimizar el uso de caché, memoria principal y almacenamiento, evitando operaciones innecesarias.
+Se propuso una estructura de memoria compuesta por niveles L1, L2 y L3, además de memoria principal y memoria Flash para almacenamiento permanente.
 
-Se propone una estructura de memoria enfocada en tareas de control, lectura de sensores y transmisión de datos, priorizando bajo consumo energético y estabilidad operativa antes que alto rendimiento extremo.
+También se definieron políticas de reemplazo y escritura como LRU (Least Recently Used) y Write-Back, permitiendo reducir accesos a memoria principal, mejorar el rendimiento y optimizar el consumo energético.
+
+Esta organización resulta adecuada para sistemas embebidos donde la eficiencia energética y la estabilidad operativa son prioritarias.
 
 
 ### 3. Análisis de rendimiento
 
-La tercera decisión principal fue evaluar si la arquitectura seleccionada realmente ofrece un buen desempeño.
-
-Para ello se utilizaron tres métricas clásicas de arquitectura de computadores:
+La tercera decisión principal fue validar el desempeño de la arquitectura seleccionada mediante métricas clásicas de arquitectura de computadores:
 
 - CPI (Cycles Per Instruction)
 - MIPS (Million Instructions Per Second)
 - Ley de Amdahl
 
-Estas métricas permiten medir cuántos ciclos necesita una instrucción, la capacidad de procesamiento del sistema y el impacto real de las optimizaciones realizadas.
+El cálculo del CPI promedio permitió determinar que cada instrucción requiere en promedio 1.7 ciclos de reloj, lo que representa un rendimiento adecuado para un sistema embebido orientado a tareas de control y eficiencia energética.
 
-El cálculo del CPI promedio dio como resultado 1.7 ciclos por instrucción, lo que representa un rendimiento adecuado para un sistema embebido IoT orientado a eficiencia energética y tareas de control.
-
-
-## Objetivo del proyecto
-
-Analizar y justificar las decisiones de arquitectura más adecuadas para el diseño de un sistema embebido IoT, considerando restricciones de energía, espacio, costo y rendimiento, con el fin de seleccionar una solución eficiente, escalable y viable para aplicaciones reales.
-
----
+Estas métricas permiten comprobar que la arquitectura seleccionada no solo es viable técnicamente, sino también eficiente desde el punto de vista económico y funcional.
