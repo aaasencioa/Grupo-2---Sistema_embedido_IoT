@@ -2,115 +2,142 @@
 
 ## Introducción
 
-En los sistemas embebidos orientados a IoT, la memoria caché juega un papel fundamental en el rendimiento general del sistema. Debido a que el procesador opera a una velocidad mucho mayor que la memoria principal (RAM), se genera una brecha de rendimiento conocida como *processor-memory gap*. Para reducir este problema, se implementa una jerarquía de memoria donde la caché actúa como una memoria intermedia rápida entre el CPU y la memoria principal.
+En los sistemas embbedidos orientados a IoT, la memoria caché es fundamental para mejorar el rendimiento del procesador y reducir el consumo energético. Debido a que la velocidad del CPU es mucho mayor que la velocidad de acceso a la memoria principal, se genera una diferencia de rendimiento conocida como *processor-memory gap*.
 
-Según Hennessy y Patterson, la jerarquía de memoria existe porque “las memorias pequeñas y rápidas son costosas, mientras que las memorias grandes y lentas son más económicas”, por lo que se busca combinar ambas para lograr eficiencia y bajo costo. De igual forma, Stallings explica que el principio de localidad (temporal y espacial) permite que la caché funcione de manera efectiva, ya que los programas tienden a reutilizar datos recientemente accedidos o datos cercanos en memoria.
+Para solucionar este problema se implementa una jerarquía de memoria, donde las memorias más pequeñas y rápidas se ubican más cerca del procesador, mientras que las memorias más grandes y lentas se utilizan para almacenamiento principal.
 
-En sistemas IoT, donde el bajo consumo energético y la eficiencia son prioritarios, el diseño de la memoria caché debe ser simple, rápido y con bajo costo de implementación.
+Según Hennessy y Patterson, esta organización permite equilibrar velocidad, costo y capacidad. Stallings también explica que el principio de localidad temporal y espacial justifica el uso de memoria caché, ya que los programas suelen reutilizar datos recientes o acceder a posiciones cercanas de memoria.
 
----
+En dispositivos IoT, donde el bajo consumo y el espacio reducido son prioritarios, la jerarquía de memoria debe diseñarse de forma eficiente y simple.
 
-## Diseño propuesto de memoria caché
+# Jerarquía de memoria propuesta
 
-Para la arquitectura seleccionada (RISC-V RV32EC), se propone una jerarquía de memoria sencilla y eficiente, adecuada para dispositivos embebidos de bajo consumo.
+Para la arquitectura seleccionada RISC-V RV32EC, se propone la siguiente jerarquía de memoria:
 
-### Estructura propuesta
+| Nivel | Tipo | Tamaño | Función principal |
+|---|---|---:|---|
+| L1 | Caché primaria | 16 KB | Acceso inmediato del CPU |
+| L2 | Caché secundaria | 64 KB | Reduce accesos a memoria principal |
+| L3 | Caché terciaria | 256 KB | Soporte adicional para cargas mayores |
+| RAM | Memoria principal | 512 KB | Ejecución general del sistema |
+| Flash | Almacenamiento permanente | 2 MB | Firmware y datos persistentes |
 
-### Nivel 1 (L1 Cache)
+
+# Diseño de cada nivel de caché
+
+## Caché L1 (Nivel 1)
+
+### Características
 
 - Tipo: Caché unificada (instrucciones + datos)
 - Tamaño: 16 KB
 - Tamaño de bloque: 32 bytes
 - Asociatividad: 2-way set associative
-- Política de escritura: Write-back
+- Política de escritura: Write-Back
 - Política de reemplazo: LRU (Least Recently Used)
 
-### Memoria principal
+### Justificación
 
-- Tipo: SRAM / DRAM de bajo consumo
-- Tamaño estimado: 256 KB – 512 KB
-- Uso principal: almacenamiento de datos permanentes y ejecución del programa
+La caché L1 debe ser pequeña y extremadamente rápida, ya que es la primera memoria consultada por el procesador.
 
----
+Hennessy y Patterson indican que una caché pequeña reduce el *hit time* y mejora la eficiencia energética. Para sistemas IoT no se requiere una caché grande, sino una respuesta rápida con bajo consumo.
 
-## Justificación del diseño
+## Caché L2 (Nivel 2)
 
-### 1. Caché pequeña para menor consumo energético
+### Características
 
-Hennessy y Patterson destacan que una caché más pequeña reduce el tiempo de acceso (*hit time*) y disminuye significativamente el consumo de energía. En dispositivos IoT no se requiere una caché grande como en servidores o computadoras de alto rendimiento, sino una solución eficiente para tareas de control, monitoreo y transmisión de datos.
+- Tipo: Caché secundaria
+- Tamaño: 64 KB
+- Tamaño de bloque: 64 bytes
+- Asociatividad: 4-way set associative
+- Política de escritura: Write-Back
+- Política de reemplazo: LRU
 
-Por ello, una L1 de 16 KB resulta suficiente para cargas ligeras y procesamiento embebido.
+### Justificación
 
----
+La L2 actúa como respaldo cuando ocurre un fallo en L1 (*cache miss*). Su objetivo es evitar accesos frecuentes a RAM, los cuales consumen más energía y tiempo.
 
-### 2. Asociatividad de 2 vías
+Stallings explica que una mayor asociatividad en L2 ayuda a reducir los *conflict misses* sin generar excesiva complejidad.
 
-Stallings explica que una caché totalmente directa puede generar demasiados fallos por conflicto (*conflict misses*), mientras que una alta asociatividad aumenta la complejidad y el consumo.
+## Caché L3 (Nivel 3)
 
-Una caché de 2 vías representa un equilibrio ideal entre rendimiento y simplicidad de hardware, reduciendo conflictos sin elevar demasiado el costo del diseño.
+### Características
 
----
+- Tipo: Caché compartida de respaldo
+- Tamaño: 256 KB
+- Tamaño de bloque: 64 bytes
+- Asociatividad: 8-way set associative
+- Política de escritura: Write-Back
+- Política de reemplazo: Pseudo-LRU
 
-### 3. Tamaño de bloque de 32 bytes
+### Justificación
 
-El tamaño del bloque afecta directamente el aprovechamiento de la localidad espacial.
+Aunque muchos sistemas embebidos pequeños no implementan L3, en aplicaciones IoT más complejas puede utilizarse como un nivel adicional para mejorar la estabilidad del sistema y reducir aún más el acceso a memoria principal.
 
-Según Patterson y Hennessy, bloques demasiado pequeños desaprovechan accesos cercanos, mientras que bloques demasiado grandes aumentan la penalización por fallo (*miss penalty*).
+La política Pseudo-LRU reduce el costo de implementación frente a un LRU completo.
 
-Por ello, 32 bytes representa una medida eficiente para sistemas embebidos.
+# Gestión de la memoria caché
 
----
+## Cache Hit y Cache Miss
 
-### 4. Política Write-Back
+### Cache Hit
 
-La política Write-Back reduce la cantidad de escrituras hacia memoria principal, lo cual disminuye el consumo energético y mejora el rendimiento.
+Ocurre cuando el dato solicitado ya se encuentra en la caché.
 
-Esto resulta especialmente importante en sistemas IoT alimentados por batería, donde cada acceso a memoria externa representa mayor gasto energético.
+Resultado:
 
----
+- acceso rápido
+- menor consumo energético
+- mejor rendimiento
 
-### 5. Política de reemplazo LRU
+### Cache Miss
 
-La política LRU (Least Recently Used) permite reemplazar el bloque menos recientemente utilizado, aprovechando el principio de localidad temporal.
+Ocurre cuando el dato no está en la caché y debe buscarse en un nivel inferior (L2, L3 o RAM).
 
-Stallings menciona que esta política mejora la tasa de aciertos (*hit rate*) frente a métodos aleatorios, especialmente en cargas repetitivas típicas de sistemas embebidos.
+Resultado:
 
----
+- mayor latencia
+- mayor consumo
+- menor rendimiento
 
-## Gestión de la memoria caché
+El objetivo principal del diseño es maximizar los hits y minimizar los misses.
 
-La gestión de la caché se enfoca en tres aspectos principales:
 
-### Hit y Miss
+## Política de reemplazo
 
-- Cache Hit: el dato solicitado ya se encuentra en caché y se accede rápidamente.
-- Cache Miss: el dato no está en caché y debe buscarse en memoria principal, generando mayor latencia.
+Cuando la caché está llena y se necesita almacenar nueva información, se debe reemplazar un bloque existente.
 
-El objetivo principal del diseño es aumentar el número de hits y reducir los misses.
+### Política utilizada: LRU
 
----
+LRU (Least Recently Used) reemplaza el bloque menos recientemente utilizado.
 
-### Reemplazo de bloques
+Esto aprovecha la localidad temporal, ya que normalmente los datos usados recientemente tienen mayor probabilidad de volver a utilizarse.
 
-Cuando la caché está llena y se necesita cargar nueva información, se aplica la política LRU para decidir qué bloque reemplazar.
+Según Stallings, esta política mejora considerablemente la tasa de aciertos.
 
-Esto mejora el rendimiento porque normalmente los datos usados recientemente tienden a reutilizarse.
 
----
 
-### Escritura de datos
+## Política de escritura
 
-Se utiliza Write-Back, donde las modificaciones primero se realizan en caché y solo se escriben en memoria principal cuando el bloque debe ser reemplazado.
+### Política utilizada: Write-Back
 
-Esto reduce accesos costosos a RAM y mejora la eficiencia energética.
+Con Write-Back, los cambios primero se realizan en caché y solo se escriben en memoria principal cuando el bloque necesita ser reemplazado.
 
----
+Ventajas:
 
-## Conclusión
+- menos accesos a RAM
+- menor consumo energético
+- mejor rendimiento
 
-El diseño de memoria caché propuesto busca equilibrar rendimiento, consumo energético y costo de fabricación, factores críticos en sistemas embebidos IoT.
+Esto resulta ideal para sistemas IoT alimentados por batería.
 
-Una caché L1 pequeña, con asociatividad moderada, política Write-Back y reemplazo LRU, permite obtener un sistema eficiente y realista para aplicaciones embebidas modernas.
 
-Siguiendo los principios establecidos por Hennessy & Patterson y Stallings, esta jerarquía de memoria ofrece una solución adecuada para arquitecturas RISC orientadas a dispositivos IoT de bajo consumo.
+# Conclusión
+
+La jerarquía de memoria propuesta busca equilibrar velocidad, consumo energético y costos de fabricación, factores críticos en sistemas embebidos IoT.
+
+Una estructura con L1 pequeña y rápida, L2 de respaldo eficiente y L3 opcional para mayor estabilidad permite optimizar el rendimiento sin sacrificar eficiencia energética.
+
+Siguiendo los principios establecidos por Hennessy & Patterson y Stallings, este diseño resulta adecuado para arquitecturas RISC orientadas a sistemas embebidos modernos.
+
 
