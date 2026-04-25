@@ -2,7 +2,7 @@
 
 ## Introducción
 
-En los sistemas embbedidos orientados a IoT, la memoria caché es fundamental para mejorar el rendimiento del procesador y reducir el consumo energético. Debido a que la velocidad del CPU es mucho mayor que la velocidad de acceso a la memoria principal, se genera una diferencia de rendimiento conocida como *processor-memory gap*.
+En los sistemas embedidos orientados a IoT, la memoria caché es fundamental para mejorar el rendimiento del procesador y reducir el consumo energético. Debido a que la velocidad del CPU es mucho mayor que la velocidad de acceso a la memoria principal, se genera una diferencia de rendimiento conocida como *processor-memory gap*.
 
 Para solucionar este problema se implementa una jerarquía de memoria, donde las memorias más pequeñas y rápidas se ubican más cerca del procesador, mientras que las memorias más grandes y lentas se utilizan para almacenamiento principal.
 
